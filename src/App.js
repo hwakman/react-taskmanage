@@ -1,26 +1,238 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React, { Component, Fragment } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
+class TaskList extends Component {
+  render(){
+    return(
+    <div className="col-lg-4 col-sm-12 mb-3 p-1">
+      <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
+        <span className="text-light p-2">Ticket #{this.props.ticket}</span>
+        <span className="p-3">
+          <span className="bg-primary p-2 m-1 rounded-pill text-white" style={{cursor:"pointer"}} onClick={this.props.finish}>Finish</span>
+          <span className="bg-warning p-2 m-1 rounded-pill text-white" style={{cursor:"pointer"}} onClick={this.props.return}>Return</span>
+          <span className="bg-danger p-2 m-1 rounded-pill text-white" style={{cursor:"pointer"}} onClick={this.props.remove}>Commit</span>
+        </span>
+      </span>
+    </div>
+    )
+  }
+}
+// Finish section
+class FinishedList extends Component {
+  render(){
+    return(
+    <span className="col-lg-3 mb-3 p-2">
+      <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
+        <span className="text-light p-2">Ticket #{this.props.ticket}</span>
+        <span className="text-light p-2 bg-danger rounded-right" style={{cursor:"pointer"}}>Commit</span>
+      </span>
+    </span>
+    )
+  }
+}
+
+// Return section
+class ReturnList extends Component {
+  render(){
+    return(
+      <span className="col-lg-3 mb-3 p-2">
+      <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
+        <span className="text-light p-2">Ticket #{this.props.ticket}</span>
+        <span className="text-light p-2 bg-info rounded-right" style={{cursor:"pointer"}}>Finish</span>
+      </span>
+    </span>
+    )
+  }
+}
+
+// Commited section
+class CommitedList extends Component {
+  render(){
+    return(
+      <span className="col-lg-3 mb-3 p-2">
+      <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
+        <span className="text-light p-2">Ticket #{this.props.ticket}</span>
+        <span className="text-light p-2 bg-primary rounded-right" style={{cursor:"pointer"}}>Revert</span>
+      </span>
+    </span>
+    )
+  }
+}
+
 class App extends Component {
+  constructor() {
+    super();
+    this.inputTicket = React.createRef();
+    this.state = {
+      ticket : [],
+      tempTicket : {},
+      showTicket : [],
+      commit: [],
+      finish: [],
+      return: []
+    }
+    this.changeTicket = this.changeTicket.bind(this);
+    this.setTicket = this.setTicket.bind(this);
+    this.clearTicket = this.clearTicket.bind(this);
+    this.reload = this.reload.bind(this);
+    this.removeTicket = this.removeTicket.bind(this);
+    this.returnTicket = this.returnTicket.bind(this);
+    this.finishTicket = this.finishTicket.bind(this);
+  }
+  changeTicket = e => {
+    this.setState({
+      tempTicket:{fin: 0,return: 0,ticket:e.target.value}
+    });
+  }
+
+  // Add new ticket
+  setTicket = () => {
+    if(this.state.tempTicket.ticket){
+    let colleTicket = this.state.ticket;
+    colleTicket.push(this.state.tempTicket);
+      this.setState({
+        ticket: colleTicket
+      });      
+    this.inputTicket.current.value = '';
+    this.inputTicket.current.focus();
+    this.setState({tempTicket:{}})
+    }
+  }
+
+  removeTicket = e => {
+    let removeTemp = this.state.ticket;
+    let commitTemp = this.state.commit;
+    commitTemp.push(removeTemp[e].ticket);
+    removeTemp.splice(e,1);
+    this.setState({
+      ticket:removeTemp,
+      commit: commitTemp
+    });
+  }
+
+  returnTicket = e => {
+    let removeTemp = this.state.ticket;
+    let returnTemp = this.state.return;
+    returnTemp.push(removeTemp[e].ticket);
+    removeTemp.splice(e,1);
+    this.setState({
+      ticket:removeTemp,
+      return: returnTemp
+    });
+  }
+
+  finishTicket = e => {
+    let removeTemp = this.state.ticket;
+    let finishTemp = this.state.finish;
+    finishTemp.push(removeTemp[e].ticket);
+    removeTemp.splice(e,1);
+    this.setState({
+      ticket:removeTemp,
+      finish: finishTemp
+    });
+  }
+
+  // Remove all ticket
+  clearTicket = () => {
+    this.setState({
+      ticket: [],
+      tempTicket: {}
+    })
+  }
+
+  // Reload
+  reload = () => {
+    this.setState({
+      showTicket: this.state.ticket.filter(data => (data.del === 0))
+    })
+  }
+
+  // Set element when start
+  componentDidMount(){
+    this.reload();
+  }
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <Fragment>
+        <div className="container-fluid">
+          <nav className="row navbar navbar-light bg-light shadow-sm">
+            <div className="container-fluid">
+              <span className="btn btn-light"><b>HOME</b></span>
+            </div>
+          </nav>
+          <div className="row mb-4 p-3">
+              <div className="form-inline mt-3 col-sm-12">
+                <input type='text' maxLength={5} className="form-control col-8 mr-2" placeholder="Ticket NO." ref={this.inputTicket} onChange={this.changeTicket}/>
+                <button className="btn btn-primary mr-2" onClick={this.setTicket}>Add</button>
+                <button className="btn btn-danger" onClick={this.clearTicket}>Clear</button>
+              </div>
+          </div>
+
+          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+            <span className="col-12 d-flex justify-content-between">
+              <h3>Status</h3>
+              <small style={{cursor:"pointer"}}>Hide</small>
+            </span>
+
+              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
+                Ongoing ({this.state.ticket.length})
+              </span>
+              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
+                Finished ({this.state.finish.length})
+              </span>
+              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
+                Return ({this.state.return.length})
+              </span>
+              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
+                Commited ({this.state.commit.length})
+              </span>
+          </div>
+
+          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+            <span className="col-12 d-flex justify-content-between">
+              <h3>Ongoing ({this.state.ticket.length})</h3>
+              <small style={{cursor:"pointer"}}>Hide</small>
+            </span>
+            {this.state.ticket.map((data,key) => 
+              <TaskList key={key} progress={data.progress} ticket={data.ticket} 
+              remove={this.removeTicket.bind(this,key)}
+              return={this.returnTicket.bind(this,key)}
+              finish={this.finishTicket.bind(this,key)} />
+            )}
+          </div>
+
+          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+            <span className="col-12 d-flex justify-content-between">
+              <h3>Finished ({this.state.finish.length})</h3>
+              <small style={{cursor:"pointer"}}>Hide</small>
+            </span>
+            {this.state.finish.map(data => 
+              <FinishedList ticket={data} />  
+            )}
+          </div>
+
+          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+            <span className="col-12 d-flex justify-content-between">
+              <h3>Return ({this.state.return.length})</h3>
+              <small style={{cursor:"pointer"}}>Hide</small>
+            </span>
+            {this.state.return.map(data => 
+              <ReturnList ticket={data} />  
+            )}
+          </div>
+
+          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+            <span className="col-12 d-flex justify-content-between">
+              <h3>Commited ({this.state.commit.length})</h3>
+              <small style={{cursor:"pointer"}}>Hide</small>
+            </span>
+            {this.state.commit.map(data => 
+              <CommitedList ticket={data} />  
+            )}
+          </div>
+        </div>
+      </Fragment>
     );
   }
 }
