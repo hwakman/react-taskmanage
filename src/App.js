@@ -249,7 +249,6 @@ class App extends Component {
               <div className="form-inline mt-3 col-sm-12">
                 <input type='text' maxLength={5} className="form-control col-8 mr-2" placeholder="Ticket NO." ref={this.inputTicket} onChange={this.changeTicket}/>
                 <button className="btn btn-primary mr-2" onClick={this.setTicket}>Add</button>
-                <button className="btn btn-danger" onClick={this.clearTicket} disabled>Clear</button>
               </div>
           </div>
 
