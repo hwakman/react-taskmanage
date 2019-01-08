@@ -249,11 +249,11 @@ class App extends Component {
               <div className="form-inline mt-3 col-sm-12">
                 <input type='text' maxLength={5} className="form-control col-8 mr-2" placeholder="Ticket NO." ref={this.inputTicket} onChange={this.changeTicket}/>
                 <button className="btn btn-primary mr-2" onClick={this.setTicket}>Add</button>
-                <button className="btn btn-danger" onClick={this.clearTicket}>Clear</button>
+                <button className="btn btn-danger" onClick={this.clearTicket} disabled>Clear</button>
               </div>
           </div>
 
-          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Status</h3>
               <small style={{cursor:"pointer"}}>View All</small>
@@ -273,7 +273,7 @@ class App extends Component {
               </span>
           </div>
 
-          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Ongoing ({this.state.ticket.length})</h3>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowOngoing}>{this.state.showOngoing ? "Hide":"Show"}</small>
@@ -289,36 +289,36 @@ class App extends Component {
             )}
           </div>
 
-          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Finished ({this.state.finish.length})</h3>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowFinish}>{this.state.showFinish ? "Hide":"Show"}</small>
             </span>
 
             {this.state.finish.map((data,key) => 
-              <FinishedList ticket={data} commit={this.finishToCommit.bind(this,key)} show={this.state.showFinish} />  
+              <FinishedList key={key} ticket={data} commit={this.finishToCommit.bind(this,key)} show={this.state.showFinish} />  
             )}
           </div>
 
-          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Return ({this.state.return.length})</h3>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowReturn}>{this.state.showReturn ? "Hide":"Show"}</small>
             </span>
 
             {this.state.return.map((data,key) => 
-              <ReturnList ticket={data} finish={this.returnToFinish.bind(this,key)} show={this.state.showReturn} />  
+              <ReturnList key={key} ticket={data} finish={this.returnToFinish.bind(this,key)} show={this.state.showReturn} />  
             )}
           </div>
 
-          <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Commited ({this.state.commit.length})</h3>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowCommit}>{this.state.showCommit ? "Hide":"Show"}</small>
             </span>
 
             {this.state.commit.map((data,key) => 
-              <CommitedList ticket={data} revert={this.commitToRevert.bind(this,key)} show={this.state.showCommit} />  
+              <CommitedList key={key} ticket={data} revert={this.commitToRevert.bind(this,key)} show={this.state.showCommit} />  
             )}
           </div>
         </div>
