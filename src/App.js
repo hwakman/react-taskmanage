@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import writeFileP from 'write-file-p';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import {CSVLink ,CSVDownload} from 'react-csv';
 import './App.css';
 import Demo from './demo.json'
 
@@ -76,11 +76,14 @@ class App extends Component {
       showOngoing : true,
       showFinish : false,
       showReturn : false,
-      showCommit : false
+      showCommit : false,
+      empty : false,
+      dumpTemp : {}
     }
     this.changeTicket = this.changeTicket.bind(this);
     this.setTicket = this.setTicket.bind(this);
     this.clearTicket = this.clearTicket.bind(this);
+    this.redoTicket = this.redoTicket.bind(this);
     this.reload = this.reload.bind(this);
     this.removeTicket = this.removeTicket.bind(this);
     this.returnTicket = this.returnTicket.bind(this);
@@ -92,7 +95,9 @@ class App extends Component {
     this.toggleShowFinish = this.toggleShowFinish.bind(this);
     this.toggleShowReturn = this.toggleShowReturn.bind(this);
     this.toggleShowCommit = this.toggleShowCommit.bind(this);
+    this.todayDate = this.todayDate.bind(this)
     this.exportCSV = this.exportCSV.bind(this);
+    this.exportCSV2 = this.exportCSV2.bind(this);
   }
   changeTicket = e => {
     this.setState({
@@ -106,7 +111,8 @@ class App extends Component {
     let colleTicket = this.state.ticket;
     colleTicket.push(this.state.tempTicket);
       this.setState({
-        ticket: colleTicket
+        ticket: colleTicket,
+        empty: false
       });      
     this.inputTicket.current.value = '';
     this.inputTicket.current.focus();
@@ -215,10 +221,50 @@ class App extends Component {
 
   // Remove all ticket
   clearTicket = () => {
+    let tempDump = {};
+    tempDump.ticket = this.state.ticket;
+    tempDump.finish = this.state.finish;
+    tempDump.return = this.state.return;
+    tempDump.commit = this.state.commit;
     this.setState({
       ticket: [],
-      tempTicket: {}
-    })
+      finish: [],
+      return: [],
+      commit: [],
+      empty : true,
+      dumpTemp : tempDump
+    });
+    console.log(tempDump);
+  }
+
+  // Redo after clear
+  redoTicket = () => {
+    let dump = this.state.dumpTemp;
+    this.setState({
+      ticket: dump.ticket,
+      finish: dump.finish,
+      return: dump.return,
+      commit: dump.commit,
+      empty: false,
+      dumpTemp: {}
+    });
+  }
+
+  todayDate = () => {
+    let today = new Date();
+    let dd = today.getDate();
+    let mm = today.getMonth() + 1; //January is 0!
+
+    let yyyy = today.getFullYear();
+    if (dd < 10) {
+      dd = '0' + dd;
+    } 
+    if (mm < 10) {
+      mm = '0' + mm;
+    } 
+    today = yyyy + mm + dd;
+
+    return today;
   }
 
   // Reload
@@ -239,29 +285,62 @@ class App extends Component {
   }
 
   exportCSV = () => {
-    let CSV = '{"ongoing":[';
+    let CSV = '{\n"ongoing":[';
     this.state.ticket.map(data => (CSV += '"'+data.ticket+'",'));
     CSV = CSV.substring(0,CSV.length - 1);
-    CSV += '],"Finish":[';
+    CSV += '],\n"finish":[';
     this.state.finish.map(data => (CSV += '"'+data+'",'));
     CSV = CSV.substring(0,CSV.length - 1);
-    CSV += '],"Return":[';
+    CSV += '],\n"return":[';
     this.state.return.map(data => (CSV += '"'+data+'",'));
     CSV = CSV.substring(0,CSV.length - 1);
-    CSV += '],"Commit":[';
+    CSV += '],\n"commit":[';
     this.state.commit.map(data => (CSV += '"'+data+'",'));
     CSV = CSV.substring(0,CSV.length - 1);
-    CSV += ']}';
+    CSV += ']\n}';
     
-    return document.write(CSV);
+    return CSV;
+  }
+
+  exportCSV2 = () => {
+    let exportCsv = [];
+    let arr1 = ['Ongoing'];
+    this.state.ticket.map(data => arr1.push(data.ticket));
+    let arr2 = ['Finish'];
+    this.state.finish.map(data => arr2.push(data));
+    let arr3 = ['Return'];
+    this.state.return.map(data => arr3.push(data));
+    let arr4 = ['Commit'];
+    this.state.commit.map(data => arr4.push(data));
+    exportCsv.push(arr1,arr2,arr3,arr4)
+    
+    console.log(exportCsv);
+    
+    return exportCsv;
   }
 
   render() {
     return (
       <Fragment>
         <nav className="navbar navbar-white bg-white shadow-sm">
-          <div className="container-fluid">
-            <span className="btn btn-white"><b>HOME</b></span>
+          <div className="container-fluid d-flex align-items-center">
+            <small className="h4">T.M.S.</small>
+            <div>
+                <CSVLink data={this.exportCSV2()} filename={"TSK" + this.todayDate() + ".csv"}>
+                  <button className="btn btn-primary m-1 pl-3 pr-3" onClick={this.exportCSV2}>
+                    CSV
+                  </button>
+                </CSVLink>
+
+                <CSVLink data={this.exportCSV()} filename={"TSK" + this.todayDate() + ".JSON"}>
+                  <button className="btn btn-info m-1 pl-3 pr-3" onClick={this.exportCSV}>
+                    JSON
+                  </button>
+                </CSVLink>
+                <button className="btn btn-danger m-1 pl-3 pr-3" onClick={this.state.empty ? this.redoTicket:this.clearTicket}>
+                  {this.state.empty ? "Redo":"Clear"}
+                </button>
+              </div>
           </div>
         </nav>
 
@@ -270,21 +349,6 @@ class App extends Component {
               <div className="form-inline mt-3 col-sm-12 d-flex justify-content-center">
                 <input type='text' maxLength={5} className="form-control col-9 mr-2" placeholder="Ticket NO." ref={this.inputTicket} onChange={this.changeTicket}/>
                 <button className="btn btn-primary mr-2" onClick={this.setTicket}>Add</button>
-              </div>
-
-              <div className="mt-3 col-sm-12 d-flex justify-content-center">
-                <button className="btn btn-info m-1 pl-3 pr-3" onClick={this.exportCSV}>
-                  Import
-                </button>
-                <button className="btn btn-light m-1 pl-3 pr-3" onClick={this.exportCSV}>
-                  Export
-                </button>
-                <button className="btn btn-warning m-1 pl-3 pr-3" onClick={this.exportCSV}>
-                  JSON
-                </button>
-                <button className="btn btn-danger m-1 pl-3 pr-3" onClick={this.exportCSV}>
-                  Clear
-                </button>
               </div>
           </div>
 
