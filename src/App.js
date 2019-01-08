@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import writeFileP from 'write-file-p';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import Demo from './demo.json'
@@ -91,6 +92,7 @@ class App extends Component {
     this.toggleShowFinish = this.toggleShowFinish.bind(this);
     this.toggleShowReturn = this.toggleShowReturn.bind(this);
     this.toggleShowCommit = this.toggleShowCommit.bind(this);
+    this.exportCSV = this.exportCSV.bind(this);
   }
   changeTicket = e => {
     this.setState({
@@ -236,45 +238,73 @@ class App extends Component {
     });
   }
 
+  exportCSV = () => {
+    let CSV = '{"ongoing":[';
+    this.state.ticket.map(data => (CSV += '"'+data.ticket+'",'));
+    CSV = CSV.substring(0,CSV.length - 1);
+    CSV += '],"Finish":[';
+    this.state.finish.map(data => (CSV += '"'+data+'",'));
+    CSV = CSV.substring(0,CSV.length - 1);
+    CSV += '],"Return":[';
+    this.state.return.map(data => (CSV += '"'+data+'",'));
+    CSV = CSV.substring(0,CSV.length - 1);
+    CSV += '],"Commit":[';
+    this.state.commit.map(data => (CSV += '"'+data+'",'));
+    CSV = CSV.substring(0,CSV.length - 1);
+    CSV += ']}';
+    
+    return document.write(CSV);
+  }
+
   render() {
     return (
       <Fragment>
-        <div className="container-fluid">
-          <nav className="row navbar navbar-light bg-light shadow-sm">
-            <div className="container-fluid">
-              <span className="btn btn-light"><b>HOME</b></span>
-            </div>
-          </nav>
+        <nav className="navbar navbar-white bg-white shadow-sm">
+          <div className="container-fluid">
+            <span className="btn btn-white"><b>HOME</b></span>
+          </div>
+        </nav>
+
+        <div className="container">
           <div className="row mb-4 p-3">
-              <div className="form-inline mt-3 col-sm-12">
-                <input type='text' maxLength={5} className="form-control col-8 mr-2" placeholder="Ticket NO." ref={this.inputTicket} onChange={this.changeTicket}/>
+              <div className="form-inline mt-3 col-sm-12 d-flex justify-content-center">
+                <input type='text' maxLength={5} className="form-control col-9 mr-2" placeholder="Ticket NO." ref={this.inputTicket} onChange={this.changeTicket}/>
                 <button className="btn btn-primary mr-2" onClick={this.setTicket}>Add</button>
+              </div>
+
+              <div className="mt-3 col-sm-12 d-flex justify-content-center">
+                <button className="btn btn-info m-1 pl-3 pr-3" onClick={this.exportCSV}>
+                  Import
+                </button>
+                <button className="btn btn-light m-1 pl-3 pr-3" onClick={this.exportCSV}>
+                  Export
+                </button>
+                <button className="btn btn-warning m-1 pl-3 pr-3" onClick={this.exportCSV}>
+                  JSON
+                </button>
+                <button className="btn btn-danger m-1 pl-3 pr-3" onClick={this.exportCSV}>
+                  Clear
+                </button>
               </div>
           </div>
 
-          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm rounded" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
-              <h3>Status</h3>
+              <h4>Status</h4>
               <small style={{cursor:"pointer"}}>View All</small>
             </span>
 
-              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
-                Ongoing ({this.state.ticket.length})
-              </span>
-              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
-                Finished ({this.state.finish.length})
-              </span>
-              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
-                Return ({this.state.return.length})
-              </span>
-              <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
+              <span className="col-lg-12 col-sm d-flex justify-content-center">
+                Ongoing ({this.state.ticket.length}) : 
+                Finished ({this.state.finish.length}) : 
+                Return ({this.state.return.length}) : 
                 Commited ({this.state.commit.length})
               </span>
           </div>
 
-          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm rounded" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
-              <h3>Ongoing ({this.state.ticket.length})</h3>
+              <h4>Ongoing ({this.state.ticket.length})</h4>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowOngoing}>{this.state.showOngoing ? "Hide":"Show"}</small>
             </span>
 
@@ -288,9 +318,9 @@ class App extends Component {
             )}
           </div>
 
-          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm rounded" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
-              <h3>Finished ({this.state.finish.length})</h3>
+              <h4>Finished ({this.state.finish.length})</h4>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowFinish}>{this.state.showFinish ? "Hide":"Show"}</small>
             </span>
 
@@ -299,9 +329,9 @@ class App extends Component {
             )}
           </div>
 
-          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm rounded" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
-              <h3>Return ({this.state.return.length})</h3>
+              <h4>Return ({this.state.return.length})</h4>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowReturn}>{this.state.showReturn ? "Hide":"Show"}</small>
             </span>
 
@@ -310,9 +340,9 @@ class App extends Component {
             )}
           </div>
 
-          <div className="row mb-4 p-3 bg-light shadow-sm" style={{overflow:"hidden"}}>
+          <div className="row mb-4 p-3 bg-light shadow-sm rounded" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
-              <h3>Commited ({this.state.commit.length})</h3>
+              <h4>Commited ({this.state.commit.length})</h4>
               <small style={{cursor:"pointer"}} onClick={this.toggleShowCommit}>{this.state.showCommit ? "Hide":"Show"}</small>
             </span>
 
