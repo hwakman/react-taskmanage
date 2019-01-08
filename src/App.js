@@ -324,7 +324,8 @@ class App extends Component {
       <Fragment>
         <nav className="navbar navbar-white bg-white shadow-sm">
           <div className="container-fluid d-flex align-items-center">
-            <small className="h4">T.M.S.</small>
+            <small className="h4 d-block d-lg-none">T.M.S.</small>
+            <small className="h4 d-none d-lg-block">Task Management System.</small>
             <div>
                 <CSVLink data={this.exportCSV2()} filename={"TSK" + this.todayDate() + ".csv"}>
                   <button className="btn btn-primary m-1 pl-3 pr-3" onClick={this.exportCSV2}>
