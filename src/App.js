@@ -6,7 +6,7 @@ import Demo from './demo.json'
 class TaskList extends Component {
   render(){
     return(
-    <div className="col-lg-4 col-sm-12 mb-3 p-1">
+    <div className="col-lg-4 col-sm-12 mb-3 p-1" style={this.props.show ? {display:"block"}:{display:"none"}}>
       <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
         <span className="text-light p-2">Ticket #{this.props.ticket}</span>
         <span className="p-3">
@@ -23,7 +23,7 @@ class TaskList extends Component {
 class FinishedList extends Component {
   render(){
     return(
-    <span className="col-lg-3 mb-3 p-2">
+    <span className="col-lg-3 mb-3 p-2" style={this.props.show ? {display:"block"}:{display:"none"}}>
       <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
         <span className="text-light p-2">Ticket #{this.props.ticket}</span>
         <span className="text-light p-2 bg-danger rounded-right" style={{cursor:"pointer"}} onClick={this.props.commit}>Commit</span>
@@ -37,7 +37,7 @@ class FinishedList extends Component {
 class ReturnList extends Component {
   render(){
     return(
-      <span className="col-lg-3 mb-3 p-2">
+      <span className="col-lg-3 mb-3 p-2" style={this.props.show ? {display:"block"}:{display:"none"}}>
       <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
         <span className="text-light p-2">Ticket #{this.props.ticket}</span>
         <span className="text-light p-2 bg-info rounded-right" style={{cursor:"pointer"}} onClick={this.props.finish}>Finish</span>
@@ -51,7 +51,7 @@ class ReturnList extends Component {
 class CommitedList extends Component {
   render(){
     return(
-      <span className="col-lg-3 mb-3 p-2">
+      <span className="col-lg-3 mb-3 p-2" style={this.props.show ? {display:"block"}:{display:"none"}}>
       <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
         <span className="text-light p-2">Ticket #{this.props.ticket}</span>
         <span className="text-light p-2 bg-primary rounded-right" style={{cursor:"pointer"}} onClick={this.props.revert}>Revert</span>
@@ -71,7 +71,11 @@ class App extends Component {
       showTicket : [],
       commit: [],
       finish: [],
-      return: []
+      return: [],
+      showOngoing : true,
+      showFinish : false,
+      showReturn : false,
+      showCommit : false
     }
     this.changeTicket = this.changeTicket.bind(this);
     this.setTicket = this.setTicket.bind(this);
@@ -83,6 +87,10 @@ class App extends Component {
     this.finishToCommit = this.finishToCommit.bind(this);
     this.returnToFinish = this.returnToFinish.bind(this);
     this.commitToRevert = this.commitToRevert.bind(this);
+    this.toggleShowOngoing = this.toggleShowOngoing.bind(this);
+    this.toggleShowFinish = this.toggleShowFinish.bind(this);
+    this.toggleShowReturn = this.toggleShowReturn.bind(this);
+    this.toggleShowCommit = this.toggleShowCommit.bind(this);
   }
   changeTicket = e => {
     this.setState({
@@ -139,6 +147,7 @@ class App extends Component {
     });
   }
 
+  // Finish to commit
   finishToCommit = e => {
     let removeTemp = this.state.finish;
     let commitTemp = this.state.commit;
@@ -150,6 +159,7 @@ class App extends Component {
     });
   }
 
+  // Return to finish
   returnToFinish = e => {
     let removeTemp = this.state.return;
     let finishTemp = this.state.finish;
@@ -161,6 +171,7 @@ class App extends Component {
     });
   }
 
+  // Commit to revert
   commitToRevert = e => {
     let removeTemp = this.state.commit;
     let ticketTemp = this.state.ticket;
@@ -169,6 +180,34 @@ class App extends Component {
     this.setState({
       commit: removeTemp,
       ticket: ticketTemp
+    });
+  }
+
+  // Toggle ongoing
+  toggleShowOngoing = () => {
+    this.setState({
+      showOngoing: !this.state.showOngoing
+    });
+  }
+
+  // Toggle finish
+  toggleShowFinish = () => {
+    this.setState({
+      showFinish: !this.state.showFinish
+    });
+  }
+
+  // Toggle return
+  toggleShowReturn = () => {
+    this.setState({
+      showReturn: !this.state.showReturn
+    });
+  }
+
+  // Toggle commit
+  toggleShowCommit = () => {
+    this.setState({
+      showCommit: !this.state.showCommit
     });
   }
 
@@ -217,7 +256,7 @@ class App extends Component {
           <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Status</h3>
-              <small style={{cursor:"pointer"}}>Hide</small>
+              <small style={{cursor:"pointer"}}>View All</small>
             </span>
 
               <span className="col-lg-3 col-sm-6 d-flex justify-content-center">
@@ -237,43 +276,49 @@ class App extends Component {
           <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Ongoing ({this.state.ticket.length})</h3>
-              <small style={{cursor:"pointer"}}>Hide</small>
+              <small style={{cursor:"pointer"}} onClick={this.toggleShowOngoing}>{this.state.showOngoing ? "Hide":"Show"}</small>
             </span>
+
             {this.state.ticket.map((data,key) => 
               <TaskList key={key} progress={data.progress} ticket={data.ticket} 
               remove={this.removeTicket.bind(this,key)}
               return={this.returnTicket.bind(this,key)}
-              finish={this.finishTicket.bind(this,key)} />
+              finish={this.finishTicket.bind(this,key)}
+              show={this.state.showOngoing}
+              />
             )}
           </div>
 
           <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Finished ({this.state.finish.length})</h3>
-              <small style={{cursor:"pointer"}}>Hide</small>
+              <small style={{cursor:"pointer"}} onClick={this.toggleShowFinish}>{this.state.showFinish ? "Hide":"Show"}</small>
             </span>
+
             {this.state.finish.map((data,key) => 
-              <FinishedList ticket={data} commit={this.finishToCommit.bind(this,key)} />  
+              <FinishedList ticket={data} commit={this.finishToCommit.bind(this,key)} show={this.state.showFinish} />  
             )}
           </div>
 
           <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Return ({this.state.return.length})</h3>
-              <small style={{cursor:"pointer"}}>Hide</small>
+              <small style={{cursor:"pointer"}} onClick={this.toggleShowReturn}>{this.state.showReturn ? "Hide":"Show"}</small>
             </span>
+
             {this.state.return.map((data,key) => 
-              <ReturnList ticket={data} finish={this.returnToFinish.bind(this,key)} />  
+              <ReturnList ticket={data} finish={this.returnToFinish.bind(this,key)} show={this.state.showReturn} />  
             )}
           </div>
 
           <div className="row mb-4 p-3 bg-light" style={{overflow:"hidden"}}>
             <span className="col-12 d-flex justify-content-between">
               <h3>Commited ({this.state.commit.length})</h3>
-              <small style={{cursor:"pointer"}}>Hide</small>
+              <small style={{cursor:"pointer"}} onClick={this.toggleShowCommit}>{this.state.showCommit ? "Hide":"Show"}</small>
             </span>
+
             {this.state.commit.map((data,key) => 
-              <CommitedList ticket={data} revert={this.commitToRevert.bind(this,key)} />  
+              <CommitedList ticket={data} revert={this.commitToRevert.bind(this,key)} show={this.state.showCommit} />  
             )}
           </div>
         </div>
