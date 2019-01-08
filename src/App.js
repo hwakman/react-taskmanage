@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import Demo from './demo.json'
 
 class TaskList extends Component {
   render(){
@@ -25,7 +26,7 @@ class FinishedList extends Component {
     <span className="col-lg-3 mb-3 p-2">
       <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
         <span className="text-light p-2">Ticket #{this.props.ticket}</span>
-        <span className="text-light p-2 bg-danger rounded-right" style={{cursor:"pointer"}}>Commit</span>
+        <span className="text-light p-2 bg-danger rounded-right" style={{cursor:"pointer"}} onClick={this.props.commit}>Commit</span>
       </span>
     </span>
     )
@@ -39,7 +40,7 @@ class ReturnList extends Component {
       <span className="col-lg-3 mb-3 p-2">
       <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
         <span className="text-light p-2">Ticket #{this.props.ticket}</span>
-        <span className="text-light p-2 bg-info rounded-right" style={{cursor:"pointer"}}>Finish</span>
+        <span className="text-light p-2 bg-info rounded-right" style={{cursor:"pointer"}} onClick={this.props.finish}>Finish</span>
       </span>
     </span>
     )
@@ -53,7 +54,7 @@ class CommitedList extends Component {
       <span className="col-lg-3 mb-3 p-2">
       <span className="bg-dark justify-content-between align-items-center d-flex rounded shadow-sm">
         <span className="text-light p-2">Ticket #{this.props.ticket}</span>
-        <span className="text-light p-2 bg-primary rounded-right" style={{cursor:"pointer"}}>Revert</span>
+        <span className="text-light p-2 bg-primary rounded-right" style={{cursor:"pointer"}} onClick={this.props.revert}>Revert</span>
       </span>
     </span>
     )
@@ -79,6 +80,9 @@ class App extends Component {
     this.removeTicket = this.removeTicket.bind(this);
     this.returnTicket = this.returnTicket.bind(this);
     this.finishTicket = this.finishTicket.bind(this);
+    this.finishToCommit = this.finishToCommit.bind(this);
+    this.returnToFinish = this.returnToFinish.bind(this);
+    this.commitToRevert = this.commitToRevert.bind(this);
   }
   changeTicket = e => {
     this.setState({
@@ -111,6 +115,7 @@ class App extends Component {
     });
   }
 
+  // Return ticket
   returnTicket = e => {
     let removeTemp = this.state.ticket;
     let returnTemp = this.state.return;
@@ -122,6 +127,7 @@ class App extends Component {
     });
   }
 
+  // Finish ticket
   finishTicket = e => {
     let removeTemp = this.state.ticket;
     let finishTemp = this.state.finish;
@@ -130,6 +136,39 @@ class App extends Component {
     this.setState({
       ticket:removeTemp,
       finish: finishTemp
+    });
+  }
+
+  finishToCommit = e => {
+    let removeTemp = this.state.finish;
+    let commitTemp = this.state.commit;
+    commitTemp.push(removeTemp[e]);
+    removeTemp.splice(e,1);
+    this.setState({
+      finish: removeTemp,
+      commit: commitTemp
+    });
+  }
+
+  returnToFinish = e => {
+    let removeTemp = this.state.return;
+    let finishTemp = this.state.finish;
+    finishTemp.push(removeTemp[e]);
+    removeTemp.splice(e,1);
+    this.setState({
+      return: removeTemp,
+      finish: finishTemp
+    });
+  }
+
+  commitToRevert = e => {
+    let removeTemp = this.state.commit;
+    let ticketTemp = this.state.ticket;
+    ticketTemp.push({fin:0,return:0,ticket:removeTemp[e]});
+    removeTemp.splice(e,1);
+    this.setState({
+      commit: removeTemp,
+      ticket: ticketTemp
     });
   }
 
@@ -150,8 +189,14 @@ class App extends Component {
 
   // Set element when start
   componentDidMount(){
-    this.reload();
+    this.setState({
+      ticket: Demo.ticket,
+      finish: Demo.finish,
+      return: Demo.return,
+      commit: Demo.commit
+    });
   }
+
   render() {
     return (
       <Fragment>
@@ -207,8 +252,8 @@ class App extends Component {
               <h3>Finished ({this.state.finish.length})</h3>
               <small style={{cursor:"pointer"}}>Hide</small>
             </span>
-            {this.state.finish.map(data => 
-              <FinishedList ticket={data} />  
+            {this.state.finish.map((data,key) => 
+              <FinishedList ticket={data} commit={this.finishToCommit.bind(this,key)} />  
             )}
           </div>
 
@@ -217,8 +262,8 @@ class App extends Component {
               <h3>Return ({this.state.return.length})</h3>
               <small style={{cursor:"pointer"}}>Hide</small>
             </span>
-            {this.state.return.map(data => 
-              <ReturnList ticket={data} />  
+            {this.state.return.map((data,key) => 
+              <ReturnList ticket={data} finish={this.returnToFinish.bind(this,key)} />  
             )}
           </div>
 
@@ -227,8 +272,8 @@ class App extends Component {
               <h3>Commited ({this.state.commit.length})</h3>
               <small style={{cursor:"pointer"}}>Hide</small>
             </span>
-            {this.state.commit.map(data => 
-              <CommitedList ticket={data} />  
+            {this.state.commit.map((data,key) => 
+              <CommitedList ticket={data} revert={this.commitToRevert.bind(this,key)} />  
             )}
           </div>
         </div>
